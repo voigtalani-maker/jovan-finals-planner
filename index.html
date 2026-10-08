@@ -773,7 +773,7 @@
         </div>
       </div>
       <p class="targets-note">
-        Each paper starts at Alani&rsquo;s hours less 4. The grid plans them for you from 09:00, before each paper is
+        Each paper starts at Alani&rsquo;s hours less 4, trimmed so they all fit (258 h). The grid plans them for you from 09:00, before each paper is
         written, with an hour&rsquo;s break after every two hours of study. A normal day ends at 17:00; only on days the
         hours can&rsquo;t otherwise fit, the plan runs on to 20:00, and no day ever has more than 7 hours of study. No study before a paper or for 3 hours after it, and
         nothing is planned for today or earlier. If the hours still don&rsquo;t all fit, every paper gives up about the
@@ -826,7 +826,7 @@
   // Distinct from Alani's finalsStudyPlanner* keys: every app shares one origin.
   var STORAGE_KEY = 'jovanFinalsPlannerOverrides_v1';
   var VIEW_KEY = 'jovanFinalsPlannerView_v1';
-  var TARGETS_KEY = 'jovanFinalsPlannerTargets_v1';
+  var TARGETS_KEY = 'jovanFinalsPlannerTargets_v2';   // v2: new defaults that fit
   var DONE_KEY = 'jovanFinalsPlannerDone_v1';
   var FILE_DB = 'jovanFinalsPlannerFiles';
   var FILE_STORE = 'files';
@@ -857,17 +857,14 @@
   var SUBJ_BY_ID = {};
   SUBJECTS.forEach(function (s) { SUBJ_BY_ID[s.id] = s; });
 
-  // Alani's hours per paper (her DEFAULT_TARGETS, 7 Oct 2026) less 4 each.
+  // Alani's hours per paper (her DEFAULT_TARGETS, 7 Oct 2026) less 4 each came
+  // to 280 h, which does not fit at MAX_HOURS_PER_DAY = 7. These are what the
+  // plan could fit of those (258 h, set 8 Oct 2026), so nothing comes up short.
   // Used on any device that has no targets saved yet.
-  var ALANI_TARGETS = {
-    mathsP1: 30, mathsP2: 30, englishP1: 18, englishP2: 28, afrikaansP1: 30, afrikaansP2: 26,
-    egdP1: 12, egdP2: 14, lifeSciP1: 30, lifeSciP2: 30, physSciP1: 40, physSciP2: 40
+  var DEFAULT_TARGETS = {
+    mathsP1: 24, mathsP2: 24, englishP1: 13, englishP2: 24, afrikaansP1: 24, afrikaansP2: 20,
+    egdP1: 7, egdP2: 10, lifeSciP1: 24, lifeSciP2: 24, physSciP1: 33, physSciP2: 31
   };
-  var HOURS_LESS_THAN_ALANI = 4;
-  var DEFAULT_TARGETS = {};
-  SUBJECTS.forEach(function (s) {
-    DEFAULT_TARGETS[s.id] = Math.max(0, ALANI_TARGETS[s.id] - HOURS_LESS_THAN_ALANI);
-  });
 
   // date -> { close?: true, sessions: [{ subj, hours: [start...] }] }
   // 2026 IEB NSC final timetable (NSC Circular 38 of 2026), Alani's papers
