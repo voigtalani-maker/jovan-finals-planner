@@ -1,5 +1,5 @@
 /* Jovan's Finals Planner — service worker (offline shell + installable) */
-const CACHE = 'jovan-finals-v1';
+const CACHE = 'jovan-finals-v2';
 const SHELL = [
   './', './index.html', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon-180.png'

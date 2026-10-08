@@ -7,15 +7,15 @@ Live: **https://voigtalani-maker.github.io/jovan-finals-planner/**
 ## What it does
 
 - Eight weeks, 5 October to 29 November 2026, one column per day. Exam papers fill themselves in at their real times (09:00).
-- **A light study plan.** Every paper starts at 4 hours, which the plan splits into two-hour sessions on the days just before that paper. Sessions run 10:00–12:00, plus 13:00–15:00 on busier days. Saturdays get one morning session. Sundays and exam days stay free, and no day has more than two sessions.
-- **Missed a session? It moves.** The plan only covers tomorrow onwards and is redone after every change, so skipped hours spread over the days still left.
+- **Study time is planned automatically.** Each paper starts at Alani's hours less 4 (280 h in total). They go into the open hours before each paper from 09:00, in two-hour stretches with an hour's break after each. A normal day ends at 17:00. Only on days that need it, the plan runs on to 20:00. There is no study before a paper or for 3 hours after it.
+- **Missed some hours? They move.** The plan only covers tomorrow onwards and is redone after every change, so skipped hours spread over the days still left.
 - Every non-exam hour is a dropdown. Pick a subject, Break, or free. Your picks are saved automatically, and the plan works around them.
 
 ## Hours per paper
 
 Each paper has a card where you can:
 
-- change the hours you want for it (4 by default);
+- change the hours you want for it (Alani's hours less 4 by default);
 - drag **Studied** to log the hours you have really done, which then come off the plan;
 - open its IEB SAG at that paper's topics, or attach your own demarcation (kept on this device only).
 
