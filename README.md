@@ -7,7 +7,7 @@ Live: **https://voigtalani-maker.github.io/jovan-finals-planner/**
 ## What it does
 
 - Eight weeks, 5 October to 29 November 2026, one column per day. Exam papers fill themselves in at their real times (09:00).
-- **Study time is planned automatically.** Each paper starts at Alani's hours less 4 (280 h in total). They go into the open hours before each paper from 09:00, in two-hour stretches with an hour's break after each. A normal day ends at 17:00. Only on days that need it, the plan runs on to 20:00. There is no study before a paper or for 3 hours after it.
+- **Study time is planned automatically.** Each paper starts at Alani's hours less 4 (280 h in total). They go into the open hours before each paper from 09:00, in two-hour stretches with an hour's break after each. A normal day ends at 17:00. Only on days that need it, the plan runs on to 20:00, and no day ever has more than 7 hours of study. There is no study before a paper or for 3 hours after it.
 - **Missed some hours? They move.** The plan only covers tomorrow onwards and is redone after every change, so skipped hours spread over the days still left.
 - Every non-exam hour is a dropdown. Pick a subject, Break, or free. Your picks are saved automatically, and the plan works around them.
 

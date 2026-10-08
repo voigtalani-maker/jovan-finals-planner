@@ -775,7 +775,7 @@
       <p class="targets-note">
         Each paper starts at Alani&rsquo;s hours less 4. The grid plans them for you from 09:00, before each paper is
         written, with an hour&rsquo;s break after every two hours of study. A normal day ends at 17:00; only on days the
-        hours can&rsquo;t otherwise fit, the plan runs on to 20:00. No study before a paper or for 3 hours after it, and
+        hours can&rsquo;t otherwise fit, the plan runs on to 20:00, and no day ever has more than 7 hours of study. No study before a paper or for 3 hours after it, and
         nothing is planned for today or earlier. If the hours still don&rsquo;t all fit, every paper gives up about the
         same share and its card says how many hours are short.
         <strong>Missed some hours? No stress</strong> &mdash; the plan re-spreads whatever is left over the days still to come.
@@ -809,10 +809,12 @@
   var DAY_END_HOUR = 21;      // every slot on the grid can still be filled by hand
   // Gentler than Alani's: a 09:00 start, short two-hour runs with an hour's
   // break after each, and the day done at 17:00. Only on days the hours cannot
-  // otherwise fit does the plan run on to LATE_END_HOUR (never past 19:00).
+  // otherwise fit does the plan run on to LATE_END_HOUR (never past 20:00).
+  // No day ever holds more than MAX_HOURS_PER_DAY of study, his own picks included.
   var STUDY_START_HOUR = 9;
   var STUDY_END_HOUR = 17;
   var LATE_END_HOUR = 20;
+  var MAX_HOURS_PER_DAY = 7;
   var STUDY_RUN = 2;          // hours of study before an hour's break
   var SHOW_EXAM_BADGE = true;
   var REST_AFTER_EXAM = 3;    // hours off straight after a paper
@@ -1011,13 +1013,19 @@
 
     var slots = [];               // { key, date, block, i }
     var block = 0;
+    var picksOn = {};             // date -> hours he picked himself that day
+    Object.keys(state.overrides).forEach(function (key) {
+      if (SUBJ_BY_ID[state.overrides[key]]) picksOn[key.slice(0, 10)] = (picksOn[key.slice(0, 10)] || 0) + 1;
+    });
     ALL_DAYS.forEach(function (d) {
       if (d.dateStr <= today) return;     // nothing is planned for today or earlier
       block++;
-      for (var h = STUDY_START_HOUR; h < lastPlanHour(d.dateStr); h++) {
+      var room = MAX_HOURS_PER_DAY - (picksOn[d.dateStr] || 0);
+      for (var h = STUDY_START_HOUR; h < lastPlanHour(d.dateStr) && room > 0; h++) {
         var key = d.dateStr + '_' + h;
         if (EXAM_MAP[key] || BREAK_HOURS[key] || state.overrides[key] !== undefined) { block++; continue; }
         slots.push({ key: key, date: d.dateStr, block: block, i: slots.length });
+        room--;
       }
     });
 
@@ -1324,6 +1332,7 @@
         });
       }
 
+      var dayFree = 0, dayBusy = 0;
       for (var h = STUDY_START_HOUR; h < lastPlanHour(d.dateStr); h++) {
         if (firstMorningPaper !== null && h < firstMorningPaper) continue;
 
@@ -1333,11 +1342,12 @@
 
         var ov = state.overrides[key];
         if (ov === 'break') continue;
-        if (SUBJ_BY_ID[ov]) continue;      // he has already planned this hour
-        if (plan.cell[key]) continue;      // the auto-plan has given this hour to a paper
+        if (SUBJ_BY_ID[ov] || plan.cell[key]) { dayBusy++; continue; }   // already studied in
 
-        total++;
+        dayFree++;
       }
+      // A day never holds more than MAX_HOURS_PER_DAY, so hours past that are not free.
+      total += Math.max(0, Math.min(dayFree, MAX_HOURS_PER_DAY - dayBusy));
     });
 
     return total;
