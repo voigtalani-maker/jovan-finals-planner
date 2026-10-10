@@ -776,7 +776,7 @@
         Each paper starts at Alani&rsquo;s hours less 4, trimmed so they all fit (258 h). The grid plans them for you from 09:00, before each paper is
         written, with an hour&rsquo;s break after every two hours of study. A normal day ends at 17:00; only on days the
         hours can&rsquo;t otherwise fit, the plan runs on to 20:00, and no day ever has more than 7 hours of study. No study before a paper or for 3 hours after it, and
-        nothing is planned for today or earlier. If the hours still don&rsquo;t all fit, every paper gives up about the
+        today stays planned in full until the day is over. If the hours still don&rsquo;t all fit, every paper gives up about the
         same share and its card says how many hours are short.
         <strong>Missed some hours? No stress</strong> &mdash; the plan re-spreads whatever is left over the days still to come.
         Drag the <strong>Studied</strong> bar to log hours you have really done; those come off what the plan still
@@ -990,18 +990,28 @@
   // plan.short: subject id -> hours of its target that do not fit
   var plan = { cell: {}, got: {}, short: {} };
 
-  // The same engine as Alani's planner. Every open study hour from tomorrow
+  // Nothing is ever planned before PLAN_FROM, the first day his plan covered
+  // (it was built on 8 Oct). From then on the plan always includes the whole
+  // of today, so the day he is on keeps its plan and he can see what to study.
+  var PLAN_FROM = '2026-10-09';
+
+  function planStartDate() {
+    var t = todayStr();
+    return t > PLAN_FROM ? t : PLAN_FROM;
+  }
+
+  // The same engine as Alani's planner. Every open study hour from today
   // on (not a break, not an exam, not something he picked) is filled one
   // block at a time; each block goes to the paper with the most hours still
   // needed per open hour left before it is written.
   //
   // When the targets cannot all fit, they are first scaled down so that every
   // paper squeezed by the same deadline loses the same share.
-  // It re-runs on every change and only plans from tomorrow, so a missed
+  // It re-runs on every change and never plans a day already gone, so a missed
   // session simply moves onto the days still to come.
   function planOnce() {
     computeBreaks();
-    var today = todayStr();
+    var start = planStartDate();
     var mine = plannedHours();
     var need = {};
     SUBJECTS.forEach(function (s) {
@@ -1015,7 +1025,7 @@
       if (SUBJ_BY_ID[state.overrides[key]]) picksOn[key.slice(0, 10)] = (picksOn[key.slice(0, 10)] || 0) + 1;
     });
     ALL_DAYS.forEach(function (d) {
-      if (d.dateStr <= today) return;     // nothing is planned for today or earlier
+      if (d.dateStr < start) return;     // today is planned in full, earlier days never
       block++;
       var room = MAX_HOURS_PER_DAY - (picksOn[d.dateStr] || 0);
       for (var h = STUDY_START_HOUR; h < lastPlanHour(d.dateStr) && room > 0; h++) {
@@ -1127,7 +1137,7 @@
   // plan again. Each time it is the latest normal day before the first paper
   // that is short, so the long days sit close to the paper they serve.
   function buildPlan() {
-    var today = todayStr();
+    var start = planStartDate();
     lateDays = {};
     planOnce();
     for (var guard = 0; guard < ALL_DAYS.length; guard++) {
@@ -1138,7 +1148,7 @@
       for (var k = 0; k < shortIds.length && !pick; k++) {
         for (var j = ALL_DAYS.length - 1; j >= 0; j--) {
           var d = ALL_DAYS[j];
-          if (d.dateStr <= today || d.dateStr >= EXAM_DATE[shortIds[k]]) continue;
+          if (d.dateStr < start || d.dateStr >= EXAM_DATE[shortIds[k]]) continue;
           if (lateDays[d.dateStr]) continue;
           pick = d.dateStr;
           break;
@@ -1317,7 +1327,7 @@
     var total = 0;
 
     ALL_DAYS.forEach(function (d) {
-      if (d.dateStr <= today) return;   // from tomorrow on, like the plan
+      if (d.dateStr < planStartDate()) return;   // same days as the plan
 
       var firstMorningPaper = null;
       var data = EXAM_DATA[d.dateStr];
@@ -1357,16 +1367,16 @@
   }
 
   // Hours already covered for each paper: what he has logged as studied, plus
-  // the hours from tomorrow on that he picked himself. Past picks are left out
+  // the hours from today on that he picked himself. Past picks are left out
   // (the Studied bar is the truth about the past), so a skipped hour is not
   // counted and the plan finds room for it again.
   // Suggestions are not counted — they are the app's guess, not his plan.
   function plannedHours() {
-    var today = todayStr();
+    var start = planStartDate();
     var counts = {};
     Object.keys(state.overrides).forEach(function (key) {
       var v = state.overrides[key];
-      if (SUBJ_BY_ID[v] && key.slice(0, 10) > today) counts[v] = (counts[v] || 0) + 1;
+      if (SUBJ_BY_ID[v] && key.slice(0, 10) >= start) counts[v] = (counts[v] || 0) + 1;
     });
     Object.keys(state.done).forEach(function (id) {
       if (SUBJ_BY_ID[id]) counts[id] = (counts[id] || 0) + (state.done[id] || 0);
@@ -1520,7 +1530,7 @@
         var ov = state.overrides[key];
         // Only the plan's hours are suggested; every other hour stays free.
         var suggestion = plan.cell[key] || null;
-        var isFixedBreak = !!BREAK_HOURS[key] && d.dateStr > today;
+        var isFixedBreak = !!BREAK_HOURS[key] && d.dateStr >= planStartDate();
 
         var value = '';
         var isSuggested = false;
